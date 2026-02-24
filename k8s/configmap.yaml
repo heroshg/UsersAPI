@@ -1,0 +1,12 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: usersapi-config
+  namespace: fiap-cloud-games
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  RABBITMQ_HOST: "rabbitmq"
+  RABBITMQ_PORT: "5672"
+  DATABASE_HOST: "mysql-users"
+  DATABASE_PORT: "3306"
+  DATABASE_NAME: "usersdb"

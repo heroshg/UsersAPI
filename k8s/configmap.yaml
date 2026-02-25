@@ -5,8 +5,6 @@ metadata:
   namespace: fiap-cloud-games
 data:
   ASPNETCORE_ENVIRONMENT: "Production"
-  RABBITMQ_HOST: "rabbitmq"
-  RABBITMQ_PORT: "5672"
-  DATABASE_HOST: "mysql-users"
-  DATABASE_PORT: "3306"
+  RABBITMQ_HOST: rabbitmq
+  DATABASE_HOST: mysql-users
   DATABASE_NAME: "usersdb"

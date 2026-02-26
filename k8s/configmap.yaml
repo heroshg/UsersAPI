@@ -8,3 +8,6 @@ data:
   RABBITMQ_HOST: rabbitmq
   DATABASE_HOST: mysql-users
   DATABASE_NAME: "usersdb"
+  CatalogAPI_Url: http://catalogapi:80
+  PaymentsAPI_Url: http://payments:80
+  NotificationAPI_Url: http://notification:80

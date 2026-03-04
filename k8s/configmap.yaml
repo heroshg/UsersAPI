@@ -4,6 +4,8 @@ metadata:
   name: usersapi-config
   namespace: fiap-cloud-games
 data:
+  Jwt__Issuer: "FiapCloudGames.Authentication"
+  Jwt__Audience: "FiapCloudGames.API"
   ASPNETCORE_ENVIRONMENT: "Production"
   RABBITMQ_HOST: rabbitmq
   DATABASE_HOST: mysql-users

@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>UsersAPI</name>
+    </assembly>
+    <members>
+        <member name="M:UsersAPI.Controllers.UsersController.Register(UsersAPI.Application.Commands.RegisterUser.RegisterUserCommand,System.Threading.CancellationToken)">
+            <summary>Registers a new user</summary>
+        </member>
+        <member name="M:UsersAPI.Controllers.UsersController.Login(UsersAPI.Application.Commands.NewLogin.NewLoginCommand,System.Threading.CancellationToken)">
+            <summary>Authenticates a user and returns a JWT token</summary>
+        </member>
+        <member name="M:UsersAPI.Controllers.UsersController.GetAll(UsersAPI.Application.Queries.GetUsers.GetUsersQuery,System.Threading.CancellationToken)">
+            <summary>Lists users (Admin only)</summary>
+        </member>
+        <member name="M:UsersAPI.Controllers.UsersController.GetById(System.Guid,System.Threading.CancellationToken)">
+            <summary>Gets user by ID (Admin only)</summary>
+        </member>
+        <member name="M:UsersAPI.Controllers.UsersController.GetByEmail(System.String,System.Threading.CancellationToken)">
+            <summary>Gets user by email (Admin only)</summary>
+        </member>
+        <member name="M:UsersAPI.Controllers.UsersController.GetByName(System.String,System.Threading.CancellationToken)">
+            <summary>Gets users by name (Admin only)</summary>
+        </member>
+        <member name="M:UsersAPI.Controllers.UsersController.Update(System.Guid,UsersAPI.Controllers.UpdateUserRequest,System.Threading.CancellationToken)">
+            <summary>Updates a user (Admin only)</summary>
+        </member>
+        <member name="M:UsersAPI.Controllers.UsersController.ChangeRole(System.Guid,UsersAPI.Controllers.ChangeUserRoleRequest,System.Threading.CancellationToken)">
+            <summary>Changes a user's role (Admin only)</summary>
+        </member>
+        <member name="M:UsersAPI.Controllers.UsersController.Delete(System.Guid,System.Threading.CancellationToken)">
+            <summary>Deletes a user (Admin only)</summary>
+        </member>
+        <member name="T:UsersAPI.Infrastructure.Persistence.Migrations.InitialMigration">
+            <inheritdoc />
+        </member>
+        <member name="M:UsersAPI.Infrastructure.Persistence.Migrations.InitialMigration.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:UsersAPI.Infrastructure.Persistence.Migrations.InitialMigration.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:UsersAPI.Infrastructure.Persistence.Migrations.InitialMigration.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

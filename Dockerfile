@@ -4,15 +4,18 @@ EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["UsersAPI.csproj", "."]
-RUN dotnet restore
-COPY . .
-RUN dotnet build -c Release -o /app/build
 
-FROM build AS publish
-RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
+COPY ["UsersAPI.sln", "."]
+COPY ["src/Users.Domain/Users.Domain.csproj", "src/Users.Domain/"]
+COPY ["src/Users.Application/Users.Application.csproj", "src/Users.Application/"]
+COPY ["src/Users.Infrastructure/Users.Infrastructure.csproj", "src/Users.Infrastructure/"]
+COPY ["src/Users.API/Users.API.csproj", "src/Users.API/"]
+RUN dotnet restore "src/Users.API/Users.API.csproj"
+
+COPY . .
+RUN dotnet publish "src/Users.API/Users.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "UsersAPI.dll"]
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "Users.API.dll"]

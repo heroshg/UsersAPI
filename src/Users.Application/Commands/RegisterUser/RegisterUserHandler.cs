@@ -2,6 +2,7 @@ using FiapCloudGames.Contracts.Events;
 using MassTransit;
 using MediatR;
 using Users.Application.DTOs;
+using Users.Application.IntegrationEvents;
 using Users.Domain.Entities;
 using Users.Domain.Interfaces;
 using Users.Domain.ValueObjects;
@@ -11,7 +12,8 @@ namespace Users.Application.Commands.RegisterUser;
 public class RegisterUserHandler(
     IUserRepository repository,
     IPasswordHasher passwordHasher,
-    IPublishEndpoint publishEndpoint)
+    IPublishEndpoint publishEndpoint,
+    IEventPublisher eventPublisher)
     : IRequestHandler<RegisterUserCommand, ResultViewModel<Guid>>
 {
     public async Task<ResultViewModel<Guid>> Handle(RegisterUserCommand request, CancellationToken ct)
@@ -29,7 +31,13 @@ public class RegisterUserHandler(
 
         var id = await repository.AddAsync(user, ct);
 
-        await publishEndpoint.Publish(new UserCreatedEvent(id, user.Name, request.Email), ct);
+        var evt = new UserCreatedEvent(id, user.Name.Value, request.Email);
+
+        // Publica no RabbitMQ (dev local e K8s)
+        await publishEndpoint.Publish(evt, ct);
+
+        // Publica no SQS (produção AWS → trigger da Lambda de notificações)
+        await eventPublisher.PublishUserCreatedAsync(evt, ct);
 
         return ResultViewModel<Guid>.Success(id);
     }

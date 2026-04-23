@@ -24,8 +24,8 @@ public class UserRepository(UsersDbContext context) : IUserRepository
         var normalized = name.Trim().ToLower();
         return await context.Users
             .AsNoTracking()
-            .Where(u => u.Name.ToLower().Contains(normalized))
-            .OrderBy(u => u.Name)
+            .Where(u => u.Name.Value.ToLower().Contains(normalized))
+            .OrderBy(u => u.Name.Value)
             .ToListAsync(ct);
     }
 

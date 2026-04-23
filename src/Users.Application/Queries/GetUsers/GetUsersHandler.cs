@@ -16,7 +16,7 @@ public class GetUsersHandler(IUserRepository repository)
             ct);
 
         var vms = items.Select(u =>
-            new UserViewModel(u.Id, u.Name, u.Email.Address, u.Role.Value, u.IsActive, u.CreatedAt)).ToList();
+            new UserViewModel(u.Id, u.Name.Value, u.Email.Address, u.Role.Value, u.IsActive, u.CreatedAt)).ToList();
 
         return ResultViewModel<PageResultViewModel<UserViewModel>>.Success(
             new PageResultViewModel<UserViewModel>(vms, total, request.Page, request.PageSize));

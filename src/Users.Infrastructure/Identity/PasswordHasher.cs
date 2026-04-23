@@ -9,9 +9,9 @@ public class PasswordHasher : IPasswordHasher
 {
     private const int SaltSize = 16;
     private const int HashSize = 32;
-    private const int Iterations = 4;
-    private const int MemorySize = 1024 * 64;
-    private const int Parallelism = 2;
+    private const int Iterations = 3;
+    private const int MemorySize = 1024 * 4; // 4 MB — safe for t2.micro
+    private const int Parallelism = 1;
 
     public string HashPassword(string password)
     {

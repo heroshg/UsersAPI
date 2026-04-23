@@ -14,7 +14,7 @@ public class GetUserByNameHandler(IUserRepository repository)
             return ResultViewModel<List<UserViewModel>>.Error("No users found.");
 
         var vms = users.Select(u =>
-            new UserViewModel(u.Id, u.Name, u.Email.Address, u.Role.Value, u.IsActive, u.CreatedAt)).ToList();
+            new UserViewModel(u.Id, u.Name.Value, u.Email.Address, u.Role.Value, u.IsActive, u.CreatedAt)).ToList();
 
         return ResultViewModel<List<UserViewModel>>.Success(vms);
     }

@@ -32,6 +32,7 @@ public static class DependencyInjection
 
         services.AddAuthorization();
         services.AddControllers();
+        services.AddHealthChecks();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
         {
@@ -74,12 +75,28 @@ public static class DependencyInjection
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
+        app.MapHealthChecks("/health");
         return app;
     }
 
     public static void ApplyMigrations(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
-        scope.ServiceProvider.GetRequiredService<UsersDbContext>().Database.Migrate();
+        var db = scope.ServiceProvider.GetRequiredService<UsersDbContext>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<UsersDbContext>>();
+
+        for (var attempt = 1; attempt <= 10; attempt++)
+        {
+            try
+            {
+                db.Database.Migrate();
+                return;
+            }
+            catch (Exception ex) when (attempt < 10)
+            {
+                logger.LogWarning(ex, "Migration attempt {Attempt}/10 failed. Retrying in {Delay}s...", attempt, attempt * 3);
+                Thread.Sleep(TimeSpan.FromSeconds(attempt * 3));
+            }
+        }
     }
 }

@@ -14,6 +14,6 @@ public class GetUserByEmailHandler(IUserRepository repository)
             return ResultViewModel<UserViewModel>.Error("User not found.");
 
         return ResultViewModel<UserViewModel>.Success(
-            new UserViewModel(user.Id, user.Name, user.Email.Address, user.Role.Value, user.IsActive, user.CreatedAt));
+            new UserViewModel(user.Id, user.Name.Value, user.Email.Address, user.Role.Value, user.IsActive, user.CreatedAt));
     }
 }

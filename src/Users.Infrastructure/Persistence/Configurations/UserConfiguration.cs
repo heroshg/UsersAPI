@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Users.Domain.Entities;
+using Users.Domain.ValueObjects;
 
 namespace Users.Infrastructure.Persistence.Configurations;
 
@@ -11,8 +12,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasKey(u => u.Id);
 
         builder.Property(u => u.Name)
+            .HasConversion(v => v.Value, v => UserName.From(v))
             .IsRequired()
-            .HasMaxLength(150);
+            .HasMaxLength(UserName.MaxLength);
 
         builder.OwnsOne(u => u.Email, e =>
         {

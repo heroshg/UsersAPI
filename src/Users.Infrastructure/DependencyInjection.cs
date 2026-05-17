@@ -10,6 +10,7 @@ using Users.Infrastructure.Identity;
 using Users.Infrastructure.Messaging;
 using Users.Infrastructure.Persistence;
 using Users.Infrastructure.Persistence.Repositories;
+using Users.Infrastructure.Persistence.Seed;
 
 namespace Users.Infrastructure;
 
@@ -24,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<UsersDbSeeder>();
 
         // ── Cache — Redis ─────────────────────────────────────────────────────
         var redisConnection = configuration["Redis:ConnectionString"];

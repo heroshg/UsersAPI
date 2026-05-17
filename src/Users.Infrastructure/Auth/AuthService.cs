@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Users.Domain.Interfaces;
 
@@ -11,11 +12,11 @@ public class AuthService(IConfiguration configuration) : IAuthService
 {
     public string GenerateToken(Guid userId, string email, string role)
     {
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(configuration["Jwt:Key"]
-                ?? throw new InvalidOperationException("Jwt:Key is missing.")));
+        var rsa = LoadRsaPrivateKey(configuration);
 
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var credentials = new SigningCredentials(
+            new RsaSecurityKey(rsa) { KeyId = JwtKeys.KeyId },
+            SecurityAlgorithms.RsaSha256);
 
         var claims = new List<Claim>
         {
@@ -32,5 +33,16 @@ public class AuthService(IConfiguration configuration) : IAuthService
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private static RSA LoadRsaPrivateKey(IConfiguration configuration)
+    {
+        var b64 = configuration["Jwt:RsaPrivateKey"]
+            ?? throw new InvalidOperationException("Jwt:RsaPrivateKey is missing.");
+
+        var pem = Encoding.UTF8.GetString(Convert.FromBase64String(b64));
+        var rsa = RSA.Create();
+        rsa.ImportFromPem(pem);
+        return rsa;
     }
 }

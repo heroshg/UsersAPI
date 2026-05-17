@@ -1,10 +1,13 @@
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Users.Infrastructure.Auth;
 using Users.Infrastructure.Persistence;
+using Users.Infrastructure.Persistence.Seed;
 
 namespace Users.API;
 
@@ -12,8 +15,11 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var jwtKey = configuration["Jwt:Key"]
-            ?? throw new InvalidOperationException("Jwt:Key is missing.");
+        var publicKeyB64 = configuration["Jwt:RsaPublicKey"]
+            ?? throw new InvalidOperationException("Jwt:RsaPublicKey is missing.");
+
+        var rsa = RSA.Create();
+        rsa.ImportFromPem(Encoding.UTF8.GetString(Convert.FromBase64String(publicKeyB64)));
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(o =>
@@ -26,7 +32,8 @@ public static class DependencyInjection
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = configuration["Jwt:Issuer"],
                     ValidAudience = configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                    IssuerSigningKey = new RsaSecurityKey(rsa) { KeyId = JwtKeys.KeyId },
+                    ValidAlgorithms = new[] { SecurityAlgorithms.RsaSha256 }
                 };
             });
 
@@ -90,6 +97,8 @@ public static class DependencyInjection
             try
             {
                 db.Database.Migrate();
+                var seeder = scope.ServiceProvider.GetRequiredService<UsersDbSeeder>();
+                seeder.SeedAsync().GetAwaiter().GetResult();
                 return;
             }
             catch (Exception ex) when (attempt < 10)

@@ -25,11 +25,13 @@ public class AuthService(IConfiguration configuration) : IAuthService
             new(ClaimTypes.Role, role)
         };
 
+        var expirationMinutes = int.TryParse(configuration["Jwt:ExpirationMinutes"], out var m) ? m : 15;
+
         var token = new JwtSecurityToken(
             issuer: configuration["Jwt:Issuer"],
             audience: configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(2),
+            expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);

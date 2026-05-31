@@ -33,10 +33,8 @@ public class RegisterUserHandler(
 
         var evt = new UserCreatedEvent(id, user.Name.Value, request.Email);
 
-        // Publica no RabbitMQ (dev local e K8s)
         await publishEndpoint.Publish(evt, ct);
 
-        // Publica no SQS (produção AWS → trigger da Lambda de notificações)
         await eventPublisher.PublishUserCreatedAsync(evt, ct);
 
         return ResultViewModel<Guid>.Success(id);

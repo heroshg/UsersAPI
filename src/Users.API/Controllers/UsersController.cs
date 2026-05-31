@@ -17,7 +17,6 @@ namespace Users.API.Controllers;
 [Route("api/[controller]")]
 public class UsersController(IMediator mediator) : ControllerBase
 {
-    /// <summary>Registers a new user</summary>
     [HttpPost]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -28,7 +27,6 @@ public class UsersController(IMediator mediator) : ControllerBase
         return result.IsSuccess ? Ok(result.Data) : BadRequest(result.Message);
     }
 
-    /// <summary>Authenticates a user and returns a JWT token</summary>
     [HttpPost("login")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -39,7 +37,6 @@ public class UsersController(IMediator mediator) : ControllerBase
         return result.IsSuccess ? Ok(result.Data) : BadRequest(result.Message);
     }
 
-    /// <summary>Lists users (Admin only)</summary>
     [HttpGet]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -49,7 +46,6 @@ public class UsersController(IMediator mediator) : ControllerBase
         return result.IsSuccess ? Ok(result.Data) : BadRequest(result.Message);
     }
 
-    /// <summary>Gets user by ID (Admin only)</summary>
     [HttpGet("{id:guid}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -60,7 +56,6 @@ public class UsersController(IMediator mediator) : ControllerBase
         return result.IsSuccess ? Ok(result.Data) : NotFound(result.Message);
     }
 
-    /// <summary>Gets user by email (Admin only)</summary>
     [HttpGet("email")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -71,7 +66,6 @@ public class UsersController(IMediator mediator) : ControllerBase
         return result.IsSuccess ? Ok(result.Data) : NotFound(result.Message);
     }
 
-    /// <summary>Gets users by name (Admin only)</summary>
     [HttpGet("name")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -82,7 +76,6 @@ public class UsersController(IMediator mediator) : ControllerBase
         return result.IsSuccess ? Ok(result.Data) : NotFound(result.Message);
     }
 
-    /// <summary>Updates a user (Admin only)</summary>
     [HttpPatch("{id:guid}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -93,7 +86,6 @@ public class UsersController(IMediator mediator) : ControllerBase
         return result.IsSuccess ? Ok(result.Data) : BadRequest(result.Message);
     }
 
-    /// <summary>Changes a user's role (Admin only)</summary>
     [HttpPatch("{id:guid}/role")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -104,7 +96,6 @@ public class UsersController(IMediator mediator) : ControllerBase
         return result.IsSuccess ? Ok(result.Data) : BadRequest(result.Message);
     }
 
-    /// <summary>Deletes a user (Admin only)</summary>
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

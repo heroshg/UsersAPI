@@ -61,7 +61,6 @@ public class ChangeUserRoleHandlerTests
         Assert.Equal(role, result.Data!.Role);
         repo.Verify(r => r.UpdateAsync(user, It.IsAny<CancellationToken>()), Times.Once);
 
-        // Cache deve ser invalidado após alteração de papel
         cache.Verify(c => c.RemoveAsync(UserCacheKeys.ById(user.Id), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

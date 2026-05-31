@@ -44,7 +44,6 @@ public class DeleteUserHandlerTests
         Assert.True(result.Data);
         repo.Verify(r => r.DeleteAsync(user, It.IsAny<CancellationToken>()), Times.Once);
 
-        // Cache deve ser invalidado após remoção do usuário
         cache.Verify(c => c.RemoveAsync(UserCacheKeys.ById(user.Id), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

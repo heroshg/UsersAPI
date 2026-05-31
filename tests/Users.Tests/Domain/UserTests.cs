@@ -9,8 +9,6 @@ public class UserTests
     private static Email ValidEmail => new("user@example.com");
     private static Password ValidPassword => Password.FromHash("hash");
 
-    // --- Create ---
-
     [Theory]
     [InlineData(null)]
     [InlineData("")]
@@ -63,8 +61,6 @@ public class UserTests
         Assert.Equal("Test User", user.Name.Value);
     }
 
-    // --- ChangeName ---
-
     [Theory]
     [InlineData(null)]
     [InlineData("")]
@@ -94,8 +90,6 @@ public class UserTests
         Assert.True(user.UpdatedAt >= before);
     }
 
-    // --- ChangeEmail ---
-
     [Fact]
     public void NullEmail_ChangeEmail_ThrowsDomainException()
     {
@@ -114,8 +108,6 @@ public class UserTests
         Assert.Equal("new@example.com", user.Email.Address);
         Assert.True(user.UpdatedAt >= before);
     }
-
-    // --- ChangeRole ---
 
     [Fact]
     public void InvalidRole_ChangeRole_ThrowsDomainException()
@@ -136,8 +128,6 @@ public class UserTests
         Assert.True(user.UpdatedAt >= before);
     }
 
-    // --- ChangePassword ---
-
     [Fact]
     public void NullPassword_ChangePassword_ThrowsDomainException()
     {
@@ -157,8 +147,6 @@ public class UserTests
         Assert.Equal("new-hash", user.Password.Value);
         Assert.True(user.UpdatedAt >= before);
     }
-
-    // --- Deactivate / Activate ---
 
     [Fact]
     public void Deactivate_SetsIsActiveFalse()

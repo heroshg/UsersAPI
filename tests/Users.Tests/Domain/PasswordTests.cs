@@ -5,8 +5,6 @@ namespace Users.Tests.Domain;
 
 public class PasswordTests
 {
-    // --- FromPlainText ---
-
     [Theory]
     [InlineData(null)]
     [InlineData("")]
@@ -50,8 +48,6 @@ public class PasswordTests
         var pwd = Password.FromPlainText("Secure@1");
         Assert.Equal("Secure@1", pwd.Value);
     }
-
-    // --- FromHash ---
 
     [Theory]
     [InlineData(null)]

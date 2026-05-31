@@ -64,12 +64,10 @@ public class RegisterUserHandlerTests
                 u.Role.Value == Role.User.Value),
             It.IsAny<CancellationToken>()), Times.Once);
 
-        // RabbitMQ (dev local / K8s)
         rabbitPublisher.Verify(p => p.Publish(
             It.Is<UserCreatedEvent>(e => e.UserId == expectedId && e.Email == "user@example.com"),
             It.IsAny<CancellationToken>()), Times.Once);
 
-        // SQS (produção AWS → Lambda de notificações)
         sqsPublisher.Verify(p => p.PublishUserCreatedAsync(
             It.Is<UserCreatedEvent>(e => e.UserId == expectedId && e.Email == "user@example.com"),
             It.IsAny<CancellationToken>()), Times.Once);

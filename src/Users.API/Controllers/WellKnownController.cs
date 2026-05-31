@@ -7,11 +7,6 @@ using Users.Infrastructure.Auth;
 
 namespace Users.API.Controllers;
 
-/// <summary>
-/// Endpoints OIDC/JWKS para que o AWS API Gateway (e qualquer outro consumidor)
-/// possa descobrir a chave pública usada para validar os JWTs emitidos por
-/// esta API. Ambos os endpoints são públicos por design.
-/// </summary>
 [ApiController]
 [AllowAnonymous]
 [Route(".well-known")]

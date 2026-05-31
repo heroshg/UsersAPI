@@ -21,17 +21,17 @@ public class UserRepository(UsersDbContext context) : IUserRepository
 
     public async Task<List<User>> GetByNameAsync(string name, CancellationToken ct)
     {
-        var normalized = name.Trim().ToLower();
+        var pattern = $"%{name.Trim()}%";
         return await context.Users
             .AsNoTracking()
-            .Where(u => u.Name.Value.ToLower().Contains(normalized))
+            .Where(u => EF.Functions.ILike(u.Name.Value, pattern))
             .OrderBy(u => u.Name.Value)
             .ToListAsync(ct);
     }
 
     public async Task<(List<User> Items, int Total)> ListPagedAsync(bool includeInactive, int skip, int take, CancellationToken ct)
     {
-        IQueryable<User> query = context.Users;
+        IQueryable<User> query = context.Users.AsNoTracking();
         if (!includeInactive)
             query = query.Where(u => u.IsActive);
 

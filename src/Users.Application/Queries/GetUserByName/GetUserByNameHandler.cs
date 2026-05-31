@@ -10,7 +10,7 @@ public class GetUserByNameHandler(IUserRepository repository)
     public async Task<ResultViewModel<List<UserViewModel>>> Handle(GetUserByNameQuery request, CancellationToken ct)
     {
         var users = await repository.GetByNameAsync(request.Name, ct);
-        if (!users.Any())
+        if (users.Count == 0)
             return ResultViewModel<List<UserViewModel>>.Error("No users found.");
 
         var vms = users.Select(u =>

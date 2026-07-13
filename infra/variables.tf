@@ -1,0 +1,39 @@
+variable "region" {
+  type    = string
+  default = "us-east-1"
+}
+
+# Learner Lab: só dev + prd (homolog documentado, não provisionado — ver specs/phase2/00-overview.md).
+variable "environment" {
+  type        = string
+  description = "Ambiente de deploy: dev | prd."
+
+  validation {
+    condition     = contains(["dev", "prd"], var.environment)
+    error_message = "environment deve ser \"dev\" ou \"prd\"."
+  }
+}
+
+variable "dev_allowed_cidrs" {
+  type        = list(string)
+  description = "CIDRs liberados para acessar o RDS dev exposto publicamente, p/ dotnet run local."
+  default     = []
+}
+
+variable "db_password" {
+  type        = string
+  sensitive   = true
+  description = "Senha do usuário master do RDS Postgres — fornecida via TF_VAR_db_password/terraform.tfvars (nunca commitado)."
+}
+
+variable "jwt_rsa_public_key_b64" {
+  type        = string
+  sensitive   = true
+  description = "Chave pública RSA (base64 PEM) do par usado para assinar/validar os JWTs emitidos pela UsersAPI."
+}
+
+variable "jwt_rsa_private_key_b64" {
+  type        = string
+  sensitive   = true
+  description = "Chave privada RSA (base64 PEM) usada pela UsersAPI para assinar os JWTs."
+}

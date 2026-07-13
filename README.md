@@ -17,20 +17,28 @@ Microsserviço responsável pelo cadastro, autenticação e gerenciamento de usu
 
 | Variável | Descrição | Exemplo |
 |----------|-----------|---------|
-| `ConnectionStrings__Users` | Connection string PostgreSQL | `Host=postgres;Database=users_db;...` |
-| `Jwt__Key` | Chave secreta para assinar o JWT (mín. 32 chars) | `my-secret-key` |
+| `ConnectionStrings__Users` | Connection string do RDS Postgres | `Host=fcg-dev-users.xxx.rds.amazonaws.com;Database=users_db;...` |
+| `Jwt__RsaPrivateKey` | Chave privada RSA (base64 PEM) usada para assinar o JWT | — |
+| `Jwt__RsaPublicKey` | Chave pública RSA (base64 PEM) exposta via JWKS (`/.well-known/jwks.json`) | — |
 | `Jwt__Issuer` | Issuer do JWT | `FiapCloudGames` |
 | `Jwt__Audience` | Audience do JWT | `FiapCloudGames` |
-| `RabbitMQ__Host` | Host do RabbitMQ | `rabbitmq` |
-| `RabbitMQ__Username` | Usuário RabbitMQ | `guest` |
-| `RabbitMQ__Password` | Senha RabbitMQ | `guest` |
+| `AWS__Region` | Região AWS (filas SQS/SNS) | `us-east-1` |
+| `Messaging__Scope` | Prefixo de isolamento por ambiente das filas/tópicos SQS/SNS | `fcg-dev` |
+| `Redis__ConnectionString` | Connection string do ElastiCache Redis; vazio → cache em memória | — |
+
+Segredos (JWT, RDS, Redis) são injetados em runtime via AWS Secrets Manager + External Secrets
+Operator no EKS (spec 05); localmente, via `dotnet user-secrets` (spec 06).
 
 ## Executando localmente
 
+Pré-requisitos: **.NET 8 SDK** + credenciais AWS com acesso aos recursos do ambiente `dev`. Sem
+docker-compose, sem Kubernetes:
+
 ```bash
-dotnet run
+dotnet run --project src/Users.API
 ```
 
+A API sobe contra o RDS `dev` (público, SG allowlist) e as filas SQS/SNS `fcg-dev-*`.
 Swagger disponível em: http://localhost:5001/swagger
 
 ## Endpoints

@@ -56,12 +56,14 @@ public static class DependencyInjection
         services.AddMassTransit(x =>
         {
             x.DisableUsageTelemetry();
-            x.UsingRabbitMq((ctx, cfg) =>
+            x.UsingAmazonSqs((ctx, cfg) =>
             {
-                cfg.Host(configuration["RabbitMQ:Host"], "/", h =>
+                // Credenciais via cadeia padrão da AWS (IAM): perfil local / node role (LabRole) no EKS.
+                cfg.Host(configuration["AWS:Region"] ?? "us-east-1", h =>
                 {
-                    h.Username(configuration["RabbitMQ:Username"] ?? throw new InvalidOperationException("RabbitMQ:Username is missing."));
-                    h.Password(configuration["RabbitMQ:Password"] ?? throw new InvalidOperationException("RabbitMQ:Password is missing."));
+                    var scope = configuration["Messaging:Scope"];
+                    if (!string.IsNullOrWhiteSpace(scope))
+                        h.Scope(scope, true);
                 });
                 cfg.ConfigureEndpoints(ctx);
             });

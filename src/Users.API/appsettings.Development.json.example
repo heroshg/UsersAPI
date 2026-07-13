@@ -1,18 +1,21 @@
 {
   "ConnectionStrings": {
-    "Users": "Host=localhost;Port=5432;Database=users_db;Username=postgres;Password=CHANGE_ME"
+    "Users": "Host=<rds-fcg-dev-users-endpoint>;Port=5432;Database=users_db;Username=postgres;Password="
   },
   "Jwt": {
-    "Key": "CHANGE_ME_min32chars_use_openssl_rand_base64_32",
+    "RsaPublicKey": "<base64 do PEM da chave pública — ver README para gerar o par RSA>",
+    "RsaPrivateKey": "<base64 do PEM da chave privada — só a UsersAPI precisa dela>",
     "Issuer": "FiapCloudGames",
-    "Audience": "FiapCloudGames"
+    "Audience": "FiapCloudGames",
+    "ExpirationMinutes": 15
   },
-  "RabbitMQ": {
-    "Host": "localhost",
-    "Username": "fcg_rmq",
-    "Password": "CHANGE_ME"
+  "AWS": {
+    "Region": "us-east-1"
+  },
+  "Messaging": {
+    "Scope": "fcg-dev"
   },
   "Redis": {
-    "ConnectionString": "localhost:6379,password=CHANGE_ME"
+    "ConnectionString": ""
   }
 }

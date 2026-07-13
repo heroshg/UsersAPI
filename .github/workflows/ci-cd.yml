@@ -1,0 +1,109 @@
+# Spec 09 — CI/CD do UsersAPI. Push em master builda/testa, publica no ECR e faz deploy em dev
+# (RollingUpdate maxUnavailable:0 = zero downtime). homolog/prd exigem aprovação manual via
+# GitHub Environments (spec 10) — não incluído neste workflow inicial (escopo: dev).
+#
+# ⚠️ Learner Lab: sem OIDC (não é possível criar OIDC provider/role — ver
+# specs/phase2/00-overview.md). Usa as credenciais TEMPORÁRIAS do lab como secrets do GitHub
+# (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY / AWS_SESSION_TOKEN) — rotacionam a cada sessão do
+# lab, então precisam ser atualizadas antes de cada demo. Numa conta AWS completa, troque o passo
+# "Configure AWS credentials" por `aws-actions/configure-aws-credentials` com `role-to-assume`
+# (OIDC), sem chaves estáticas.
+
+name: CI/CD - UsersAPI
+
+on:
+  push:
+    branches: [master]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: users-api
+  EKS_CLUSTER_NAME: fcg-eks
+  EKS_NAMESPACE: fcg-dev
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore UsersAPI.sln
+
+      - name: Build
+        run: dotnet build UsersAPI.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test tests/Users.Tests/Users.Tests.csproj --configuration Release --no-restore
+
+  build-push:
+    needs: build-test
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Configure AWS credentials (Learner Lab — creds temporárias, sem OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login no ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build da imagem
+        run: |
+          docker build -t $ECR_REPOSITORY:${{ steps.vars.outputs.sha_short }} .
+
+      - name: Security scan (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "${{ env.ECR_REPOSITORY }}:${{ steps.vars.outputs.sha_short }}"
+          exit-code: "0" # endurecer para "1" depois de validar o baseline de vulnerabilidades
+          severity: "CRITICAL,HIGH"
+
+      - name: Tag e push para o ECR
+        id: image
+        env:
+          REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        run: |
+          docker tag $ECR_REPOSITORY:${{ steps.vars.outputs.sha_short }} $REGISTRY/$ECR_REPOSITORY:${{ steps.vars.outputs.sha_short }}
+          docker tag $ECR_REPOSITORY:${{ steps.vars.outputs.sha_short }} $REGISTRY/$ECR_REPOSITORY:latest
+          docker push $REGISTRY/$ECR_REPOSITORY:${{ steps.vars.outputs.sha_short }}
+          docker push $REGISTRY/$ECR_REPOSITORY:latest
+          echo "image=$REGISTRY/$ECR_REPOSITORY:${{ steps.vars.outputs.sha_short }}" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: build-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (Learner Lab — creds temporárias, sem OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Atualizar kubeconfig
+        run: aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
+
+      - name: Deploy no namespace dev
+        run: |
+          kubectl apply -f k8s-dev.yaml -n $EKS_NAMESPACE
+          kubectl set image deployment/users-api users-api=${{ needs.build-push.outputs.image }} -n $EKS_NAMESPACE
+          kubectl rollout status deployment/users-api -n $EKS_NAMESPACE --timeout=180s
